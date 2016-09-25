@@ -18,20 +18,6 @@ main =
         }
 
 
-searchResultDecoder : Decoder SearchResult
-searchResultDecoder =
-    -- See https://developer.github.com/v3/search/#example
-    -- and http://package.elm-lang.org/packages/NoRedInk/elm-decode-pipeline/latest
-    --
-    -- Look in SampleResponse.elm to see the exact JSON we'll be decoding!
-    --
-    -- TODO replace these calls to `hardcoded` with calls to `required`
-    decode SearchResult
-        |> hardcoded 0
-        |> hardcoded ""
-        |> hardcoded 0
-
-
 type alias Model =
     { query : String
     , results : List SearchResult
@@ -56,6 +42,20 @@ responseDecoder : Decoder (List SearchResult)
 responseDecoder =
     decode identity
         |> required "items" (list searchResultDecoder)
+
+
+searchResultDecoder : Decoder SearchResult
+searchResultDecoder =
+    -- See https://developer.github.com/v3/search/#example
+    -- and http://package.elm-lang.org/packages/NoRedInk/elm-decode-pipeline/latest
+    --
+    -- Look in SampleResponse.elm to see the exact JSON we'll be decoding!
+    --
+    -- TODO replace these calls to `hardcoded` with calls to `required`
+    decode SearchResult
+        |> hardcoded 0
+        |> hardcoded ""
+        |> hardcoded 0
 
 
 decodeResults : String -> List SearchResult

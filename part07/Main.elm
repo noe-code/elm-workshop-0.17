@@ -31,19 +31,10 @@ searchFeed query =
                 ++ query
                 ++ "+language:elm&sort=stars&order=desc"
 
-        -- HINT: responseDecoder may be useful here.
         task =
-            "TODO replace this String with a Task using http://package.elm-lang.org/packages/evancz/elm-http/latest/Http#get"
+            Http.get responseDecoder url
     in
-        -- TODO replace this Cmd.none with a call to Task.perform
-        -- http://package.elm-lang.org/packages/elm-lang/core/latest/Task#perform
-        --
-        -- HINT: pass these to Task.perform, but in a different order than this!
-        --
-        -- task
-        -- HandleSearchResponse
-        -- HandleSearchError
-        Cmd.none
+        Task.perform HandleSearchError HandleSearchResponse task
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -131,20 +122,25 @@ update msg model =
             ( model, searchFeed model.query )
 
         HandleSearchResponse results ->
-            ( { model | results = results }, Cmd.none )
+            ( { model | results = results, errorMessage = Nothing }, Cmd.none )
 
         HandleSearchError error ->
-            -- TODO if decoding failed, store the message in model.errorMessage
-            --
-            -- HINT 1: Remember, model.errorMessage is a Maybe String - so it
-            -- can only be set to either Nothing or (Just "some string here")
-            --
-            -- Hint 2: look for "decode" in the documentation for this union type:
-            -- http://package.elm-lang.org/packages/evancz/elm-http/latest/Http#Error
-            --
-            -- Hint 3: to check if this is working, break responseDecoder
-            -- by changing "stargazers_count" to "description"
-            ( model, Cmd.none )
+            let
+                errorMessage =
+                    case error of
+                        Http.Timeout ->
+                            "Timeout error"
+
+                        Http.NetworkError ->
+                            "Network error"
+
+                        Http.UnexpectedPayload decoderError ->
+                            "Decoder error: " ++ decoderError
+
+                        Http.BadResponse _ _ ->
+                            "Bad response error"
+            in
+                ( { model | errorMessage = Just errorMessage }, Cmd.none )
 
         SetQuery query ->
             ( { model | query = query }, Cmd.none )

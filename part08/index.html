@@ -19,19 +19,23 @@
   // documentation: https://github.com/michael/github
   var github = new Github();
 
-  var app = Elm.Main.embed(document.getElementById("elm-landing-pad"));
+  var app = Elm.Main.embed(
+    document.getElementById("elm-landing-pad")
+  );
 
   function searchGithub(query) {
     console.log("Searching for", query);
 
-    github.getSearch(query).repositories({}, function (err, repositories) {
+    github
+    .getSearch(query)
+    .repositories({}, function (err, repositories) {
       console.log("Got response", repositories);
 
-      // TODO: app.ports.portNameGoesHere.send(repositories);
+ app.ports.githubResponse.send(repositories);
     });
   }
 
-  // TODO app.ports.portNameGoesHere.subscribe(searchGithub);
+  app.ports.githubSearch.subscribe(searchGithub);
 </script>
 
 </html>

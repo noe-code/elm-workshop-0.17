@@ -141,7 +141,12 @@ decodeResponse json =
     --
     -- Hint: look at the definition of Msg and
     -- the definition of responseDecoder
-    HandleSearchError (Just "TODO decode the response!")
+    case json |> decodeValue responseDecoder of
+        Ok searchResults ->
+            searchResults |> HandleSearchResponse
+
+        Err error ->
+            Just error |> HandleSearchError
 
 
 port githubSearch : String -> Cmd msg
